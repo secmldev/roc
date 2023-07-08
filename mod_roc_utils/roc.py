@@ -2,13 +2,9 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-
 def get_roc(data, period):
     """
     Rate of change indicator 
-    This method create roc values
-    Parameters
-    -------------
     Input: 
     - Data frame with price column
     - period
@@ -19,8 +15,7 @@ def get_roc(data, period):
     roc_data['roc' + str(period)] = roc_data['price'].diff(periods=period) / roc_data['price'].shift(periods=period)
     return roc_data
 
-
-def get_roc_signal(data, period, buy_threshold, sell_threshold):
+def get_roc_signal(data, period, buy_threshold = -0.1, sell_threshold =0.1):
     """
     Get ROC signals
     Input: data frame with price, ROC values for given period 
@@ -39,17 +34,17 @@ def get_roc_signal(data, period, buy_threshold, sell_threshold):
     signals['buy_sell'] = signals['buy'] + signals['sell']
     return signals[['price', 'buy_sell']]
 
-def plot_roc_buy_sell(data, signals, period):
+def plot_roc_buy_sell(data, signals, period, buy_threshold, sell_threshold):
     graph = plt.figure(figsize = (15,15))
     sp1 = graph.add_subplot(311)
     sp2 = graph.add_subplot(312)
-    sp3 = graph.add_subplot(312)
+#     sp3 = graph.add_subplot(312)
     data["roc" + str(period)].plot(ax=sp1,title = "ROC Plot",color = "r", linewidth = 0.5)
-    sp1.axhline(y= 0.1, color = "b", lw = 7.)
-    sp1.axhline(y= -0.1, color = "g", lw = 7.)
+    sp1.axhline(y= sell_threshold, color = "b", lw = 7.)
+    sp1.axhline(y= buy_threshold, color = "g", lw = 7.)
     sp1.axhline(y= 0, color = "k", lw = 5.)
 
-    signals["price"].plot(ax = sp3)
-    sp3.plot(signals.loc[signals.buy_sell == 1].index, signals.price[signals.buy_sell == 1], "^", markersize = 12, color = "k")
-    sp3.plot(signals.loc[signals.buy_sell ==-1].index, signals.price[signals.buy_sell ==-1], "v", markersize = 12, color = "m")
-    plt.show() 
+    signals["price"].plot(ax = sp2)
+    sp2.plot(signals.loc[signals.buy_sell == 1].index, signals.price[signals.buy_sell == 1], "^", markersize = 12, color = "k")
+    sp2.plot(signals.loc[signals.buy_sell ==-1].index, signals.price[signals.buy_sell ==-1], "v", markersize = 12, color = "m")
+    plt.show()
